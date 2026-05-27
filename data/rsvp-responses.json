@@ -20,5 +20,16 @@
     "attending": "accepts",
     "meal": "Vegetarian",
     "message": "Hello from Aksh!"
+  },
+  {
+    "id": 1779848814200,
+    "submittedAt": "2026-05-27T02:26:54.200Z",
+    "wedding": "sarah-james",
+    "fullName": "Test User",
+    "email": "test@test.com",
+    "guests": 2,
+    "attending": "accepts",
+    "meal": "Vegetarian",
+    "message": "Test"
   }
 ]
