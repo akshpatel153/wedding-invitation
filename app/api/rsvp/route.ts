@@ -105,17 +105,50 @@ export async function POST(req: NextRequest) {
       message: message || null,
     };
 
-    // 1. Save to JSON file
-    const filePath = path.join(process.cwd(), 'data', 'rsvp-responses.json');
-    let existing: typeof response[] = [];
+    // 1. Save to local JSON file (works in local dev, silently skipped on Vercel)
     try {
-      const raw = await fs.readFile(filePath, 'utf-8');
-      existing = JSON.parse(raw);
-    } catch { /* first submission */ }
-    existing.push(response);
-    await fs.writeFile(filePath, JSON.stringify(existing, null, 2));
+      const filePath = path.join(process.cwd(), 'data', 'rsvp-responses.json');
+      let existing: typeof response[] = [];
+      try {
+        const raw = await fs.readFile(filePath, 'utf-8');
+        existing = JSON.parse(raw);
+      } catch { /* file doesn't exist yet */ }
+      existing.push(response);
+      await fs.writeFile(filePath, JSON.stringify(existing, null, 2));
+    } catch {
+      // Silently skip on Vercel (read-only filesystem) — Firestore handles persistence
+    }
 
-    // 2. Send notification email (non-blocking — don't fail the RSVP if email fails)
+    // 2. Save to Firestore via REST API (works everywhere including Vercel)
+    try {
+      const projectId = process.env.FIREBASE_PROJECT_ID;
+      const apiKey    = process.env.FIREBASE_API_KEY;
+      if (projectId && apiKey) {
+        const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/rsvp_responses?key=${apiKey}`;
+        await fetch(firestoreUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fields: {
+              id:          { integerValue:  String(response.id) },
+              submittedAt: { stringValue:   response.submittedAt },
+              wedding:     { stringValue:   response.wedding || '' },
+              fullName:    { stringValue:   response.fullName },
+              email:       { stringValue:   response.email },
+              guests:      { integerValue:  String(response.guests) },
+              attending:   { stringValue:   response.attending },
+              meal:        { stringValue:   response.meal    || '' },
+              message:     { stringValue:   response.message || '' },
+            },
+          }),
+        });
+      }
+    } catch (fsErr) {
+      console.error('[RSVP Firestore]', fsErr);
+      // Non-blocking — don't fail the submission
+    }
+
+    // 3. Send notification email (non-blocking)
     try {
       const apiKey = process.env.RESEND_API_KEY;
       if (apiKey) {
@@ -127,11 +160,8 @@ export async function POST(req: NextRequest) {
           subject: `🌹 New RSVP — ${fullName} ${isAttending ? 'is attending!' : "can't make it"}`,
           html:    buildEmail(response),
         });
-      } else {
-        console.warn('[RSVP Email] RESEND_API_KEY not set — skipping email');
       }
     } catch (emailErr) {
-      // Log but don't block the success response
       console.error('[RSVP Email]', emailErr);
     }
 
