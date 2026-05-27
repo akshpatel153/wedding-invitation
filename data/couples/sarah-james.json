@@ -1,0 +1,112 @@
+{
+  "slug": "sarah-james",
+  "heroImage": "https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=90&fit=crop",
+  "couple": {
+    "name1": "Sarah",
+    "name2": "James",
+    "monogram": "S & J",
+    "story": "Sarah & James"
+  },
+  "wedding": {
+    "date": "2026-09-20T17:30:00",
+    "dateDisplay": "Saturday, the Twentieth of September, Two Thousand and Twenty-Six",
+    "dateShort": "September 20, 2026",
+    "dayOfWeek": "SATURDAY",
+    "time": "5:30 PM",
+    "rsvpDeadline": "August 1st, 2026",
+    "dressCode": "Black Tie Optional"
+  },
+  "ceremony": {
+    "venue": "The Rosewood Chapel",
+    "address": "123 Garden Lane",
+    "city": "Halifax, Nova Scotia",
+    "time": "5:30 PM",
+    "mapsUrl": "https://maps.google.com"
+  },
+  "reception": {
+    "venue": "The Grand Ballroom",
+    "subvenue": "Rosewood Estate",
+    "city": "Halifax, Nova Scotia",
+    "time": "Immediately Following",
+    "details": "Dinner & Dancing Until Midnight",
+    "mapsUrl": "https://maps.google.com"
+  },
+  "schedule": [
+    { "time": "4:30 PM", "event": "Guest Arrival", "description": "Welcome & seating" },
+    { "time": "5:30 PM", "event": "Ceremony", "description": "Exchange of vows" },
+    { "time": "7:00 PM", "event": "Cocktail Hour", "description": "Garden terrace" },
+    { "time": "8:00 PM", "event": "Dinner", "description": "Four-course reception" },
+    { "time": "11:00 PM", "event": "Dancing", "description": "Until midnight" }
+  ],
+  "story": [
+    {
+      "date": "May 2019",
+      "title": "The Day We Met",
+      "body": "It was a rainy Tuesday evening at a little bookstore on Spring Garden Road. Neither of us was looking for anything — and then we found each other.",
+      "image": "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=700&q=80&fit=crop"
+    },
+    {
+      "date": "August 2021",
+      "title": "The Adventure Begins",
+      "body": "A spontaneous road trip to Cape Breton turned into three unforgettable days. By the time we got home, we both knew this was something different — something real.",
+      "image": "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=700&q=80&fit=crop"
+    },
+    {
+      "date": "December 2023",
+      "title": "He Asked, She Said Yes",
+      "body": "On a quiet December evening, snow falling over the Public Gardens, James got down on one knee. Sarah didn't let him finish the question.",
+      "image": "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=700&q=80&fit=crop"
+    }
+  ],
+  "gallery": [
+    { "src": "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80&fit=crop", "alt": "Couple portrait", "ratio": "3/4" },
+    { "src": "https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=800&q=80&fit=crop", "alt": "Wedding moment", "ratio": "4/5" },
+    { "src": "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=800&q=80&fit=crop", "alt": "Romantic portrait", "ratio": "1/1" },
+    { "src": "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=800&q=80&fit=crop", "alt": "Wedding flowers", "ratio": "3/4" },
+    { "src": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&q=80&fit=crop", "alt": "Couple dancing", "ratio": "2/3" },
+    { "src": "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=800&q=80&fit=crop", "alt": "Outdoor ceremony", "ratio": "4/5" },
+    { "src": "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=800&q=80&fit=crop", "alt": "Couple walking", "ratio": "1/1" },
+    { "src": "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800&q=80&fit=crop", "alt": "Wedding rings", "ratio": "3/4" }
+  ],
+  "travel": {
+    "directionsNote": "The Rosewood Estate is located 20 minutes from Halifax Stanfield International Airport. Ample parking is available on-site. We recommend using the Garden Lane entrance.",
+    "address": "123 Garden Lane, Halifax, Nova Scotia",
+    "mapsUrl": "https://maps.google.com",
+    "hotels": [
+      { "name": "The Prince George Hotel", "distance": "0.3 km from venue", "url": "#" },
+      { "name": "Marriott Harbourfront", "distance": "1.2 km from venue", "url": "#" },
+      { "name": "The Lord Nelson Hotel", "distance": "2.0 km from venue", "url": "#" }
+    ],
+    "roomBlock": "We have reserved a room block at The Prince George Hotel. Mention 'Smith-Johnson Wedding' for a discounted rate."
+  },
+  "registry": [
+    {
+      "store": "Crate & Barrel",
+      "description": "Home essentials, kitchenware & entertaining",
+      "url": "https://www.crateandbarrel.com/gift-registry/",
+      "icon": "home"
+    },
+    {
+      "store": "Williams Sonoma",
+      "description": "Cookware, bakeware & gourmet kitchen",
+      "url": "https://www.williams-sonoma.com/registry/",
+      "icon": "kitchen"
+    },
+    {
+      "store": "Honeymoon Fund",
+      "description": "Help us create unforgettable memories",
+      "url": "https://www.honeyfund.com/",
+      "icon": "travel"
+    }
+  ],
+  "password": {
+    "enabled": false,
+    "value": "",
+    "hint": ""
+  },
+  "meta": {
+    "description": "Sarah & James — Wedding, September 20, 2026 — Halifax, Nova Scotia",
+    "ogTitle": "Sarah & James are getting married! 🌸",
+    "ogDescription": "Join us on September 20th, 2026"
+  }
+}
