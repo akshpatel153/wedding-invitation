@@ -3,7 +3,6 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const NOTIFY_EMAIL = process.env.RSVP_NOTIFY_EMAIL || 'patelaksh1503@gmail.com';
 
 // ── Email HTML template ────────────────────────────────────────────────────
@@ -118,13 +117,19 @@ export async function POST(req: NextRequest) {
 
     // 2. Send notification email (non-blocking — don't fail the RSVP if email fails)
     try {
-      const isAttending = attending === 'accepts';
-      await resend.emails.send({
-        from:    'RSVP Notifications <onboarding@resend.dev>',
-        to:      NOTIFY_EMAIL,
-        subject: `🌹 New RSVP — ${fullName} ${isAttending ? 'is attending!' : 'can\'t make it'}`,
-        html:    buildEmail(response),
-      });
+      const apiKey = process.env.RESEND_API_KEY;
+      if (apiKey) {
+        const resend = new Resend(apiKey);
+        const isAttending = attending === 'accepts';
+        await resend.emails.send({
+          from:    'RSVP Notifications <onboarding@resend.dev>',
+          to:      NOTIFY_EMAIL,
+          subject: `🌹 New RSVP — ${fullName} ${isAttending ? 'is attending!' : "can't make it"}`,
+          html:    buildEmail(response),
+        });
+      } else {
+        console.warn('[RSVP Email] RESEND_API_KEY not set — skipping email');
+      }
     } catch (emailErr) {
       // Log but don't block the success response
       console.error('[RSVP Email]', emailErr);
