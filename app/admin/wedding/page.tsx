@@ -2,13 +2,15 @@
 
 import { useEffect, useState, useCallback } from 'react';
 
-const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!;
-const API_KEY    = process.env.NEXT_PUBLIC_FIREBASE_API_KEY!;
-const SLUG       = 'sarah-james';
+const PROJECT_ID    = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!;
+const API_KEY       = process.env.NEXT_PUBLIC_FIREBASE_API_KEY!;
+const ADMIN_PASS    = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'bloom2026';
+const SLUG          = 'sarah-james';
+const AUTH_KEY      = 'bloom_admin_auth';
 
-const gold  = '#C9A96E';
-const dark  = '#0e0808';
-const card  = '#140c0c';
+const gold   = '#C9A96E';
+const dark   = '#0e0808';
+const card   = '#140c0c';
 const border = 'rgba(201,169,110,0.18)';
 
 // ── Firestore helpers ──────────────────────────────────────────────────────
@@ -35,7 +37,132 @@ async function saveConfig(data: unknown) {
   return res.ok;
 }
 
-// ── Sub-components ─────────────────────────────────────────────────────────
+// ── Password Gate ──────────────────────────────────────────────────────────
+function PasswordGate({ onAuth }: { onAuth: () => void }) {
+  const [pw, setPw]       = useState('');
+  const [show, setShow]   = useState(false);
+  const [error, setError] = useState(false);
+  const [shake, setShake] = useState(false);
+
+  const attempt = () => {
+    if (pw === ADMIN_PASS) {
+      sessionStorage.setItem(AUTH_KEY, '1');
+      onAuth();
+    } else {
+      setError(true);
+      setShake(true);
+      setTimeout(() => { setShake(false); setError(false); setPw(''); }, 800);
+    }
+  };
+
+  return (
+    <div style={{
+      minHeight: '100vh', background: dark,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      backgroundImage: 'url(https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=80&fit=crop)',
+      backgroundSize: 'cover', backgroundPosition: 'center',
+      fontFamily: "'Helvetica Neue', sans-serif",
+    }}>
+      {/* Dark overlay */}
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,4,4,0.88)' }} />
+
+      <style>{`
+        @keyframes shake {
+          0%,100% { transform: translateX(0); }
+          20%,60%  { transform: translateX(-8px); }
+          40%,80%  { transform: translateX(8px); }
+        }
+        .pw-card { animation: none; }
+        .pw-card.shake { animation: shake 0.5s ease; }
+        .pw-input:focus { border-color: ${gold} !important; }
+      `}</style>
+
+      <div className={`pw-card${shake ? ' shake' : ''}`} style={{
+        position: 'relative', zIndex: 1,
+        background: 'rgba(20,10,10,0.85)',
+        border: `1px solid ${error ? 'rgba(220,80,80,0.5)' : border}`,
+        borderRadius: 4, padding: '56px 48px',
+        width: '100%', maxWidth: 400, textAlign: 'center',
+        backdropFilter: 'blur(24px)',
+        boxShadow: '0 32px 80px rgba(0,0,0,0.7)',
+        transition: 'border-color 300ms ease',
+      }}>
+        {/* Gold rule */}
+        <div style={{ height: 1, background: `linear-gradient(to right, transparent, ${gold}, transparent)`, marginBottom: 36 }} />
+
+        {/* Script heading */}
+        <div style={{
+          fontFamily: 'Georgia, serif', fontStyle: 'italic',
+          fontSize: 40, color: '#fff', marginBottom: 4, lineHeight: 1.1,
+        }}>
+          Admin
+        </div>
+        <div style={{ fontSize: 9, letterSpacing: '0.4em', textTransform: 'uppercase', color: `${gold}88`, marginBottom: 36 }}>
+          BLOOM · Wedding Platform
+        </div>
+
+        {/* Password field */}
+        <div style={{ position: 'relative', marginBottom: 20 }}>
+          <input
+            className="pw-input"
+            type={show ? 'text' : 'password'}
+            value={pw}
+            onChange={e => setPw(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && attempt()}
+            placeholder="Enter password"
+            autoFocus
+            style={{
+              width: '100%', boxSizing: 'border-box',
+              background: 'rgba(255,255,255,0.04)',
+              border: `1px solid ${error ? 'rgba(220,80,80,0.5)' : border}`,
+              borderRadius: 4, padding: '13px 48px 13px 16px',
+              color: '#ecdcc0', fontSize: 15, outline: 'none',
+              fontFamily: 'inherit', letterSpacing: '0.15em',
+              transition: 'border-color 200ms ease',
+              userSelect: 'text', WebkitUserSelect: 'text',
+            }}
+          />
+          {/* Show/hide toggle */}
+          <button
+            onClick={() => setShow(s => !s)}
+            style={{
+              position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: `${gold}66`, fontSize: 12, padding: 0,
+            }}
+          >
+            {show ? '🙈' : '👁'}
+          </button>
+        </div>
+
+        {/* Error message */}
+        <div style={{
+          height: 20, fontSize: 11, color: '#e08080',
+          letterSpacing: '0.1em', marginBottom: 16,
+          opacity: error ? 1 : 0, transition: 'opacity 200ms ease',
+        }}>
+          Incorrect password. Try again.
+        </div>
+
+        {/* Unlock button */}
+        <button onClick={attempt} style={{
+          width: '100%', padding: '14px 0', borderRadius: 999, border: 'none',
+          background: `linear-gradient(135deg, #b8922e, #e8c87a, #b8922e)`,
+          color: '#1a0e0e', fontSize: 10, letterSpacing: '0.3em',
+          textTransform: 'uppercase', fontWeight: 700, cursor: 'pointer',
+          transition: 'opacity 200ms ease',
+        }}>
+          Unlock Admin
+        </button>
+
+        {/* Gold rule */}
+        <div style={{ height: 1, background: `linear-gradient(to right, transparent, ${gold}44, transparent)`, marginTop: 36 }} />
+      </div>
+    </div>
+  );
+}
+
+// ── Field ──────────────────────────────────────────────────────────────────
 function Field({ label, value, onChange, textarea = false, placeholder = '' }: {
   label: string; value: string; onChange: (v: string) => void;
   textarea?: boolean; placeholder?: string;
@@ -71,14 +198,23 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ── Main component ─────────────────────────────────────────────────────────
+// ── Main Admin ─────────────────────────────────────────────────────────────
 export default function WeddingAdminPage() {
+  const [authed, setAuthed]   = useState(false);
+  const [checked, setChecked] = useState(false); // avoid flash of password screen
+
   const [tab, setTab]         = useState('basics');
   const [data, setData]       = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
   const [seeding, setSeeding] = useState(false);
   const [toast, setToast]     = useState<{ msg: string; ok: boolean } | null>(null);
+
+  // Check session on mount
+  useEffect(() => {
+    if (sessionStorage.getItem(AUTH_KEY) === '1') setAuthed(true);
+    setChecked(true);
+  }, []);
 
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok });
@@ -92,7 +228,7 @@ export default function WeddingAdminPage() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { if (authed) load(); }, [authed, load]);
 
   const patch = (path: string[], value: unknown) => {
     setData(prev => {
@@ -119,7 +255,7 @@ export default function WeddingAdminPage() {
     setSaving(true);
     const ok = await saveConfig(data);
     setSaving(false);
-    showToast(ok ? '✓ Saved to Firestore — changes are live!' : '✗ Save failed. Check Firestore rules.', ok);
+    showToast(ok ? '✓ Saved — changes are live on the website!' : '✗ Save failed. Check Firestore rules.', ok);
   };
 
   const seed = async () => {
@@ -131,15 +267,26 @@ export default function WeddingAdminPage() {
     else showToast('✗ Seed failed', false);
   };
 
+  const logout = () => {
+    sessionStorage.removeItem(AUTH_KEY);
+    setAuthed(false);
+  };
+
   const tabs = [
-    { id: 'basics',    label: 'Couple' },
-    { id: 'event',     label: 'Event' },
-    { id: 'ceremony',  label: 'Ceremony' },
+    { id: 'basics',    label: 'Couple'    },
+    { id: 'event',     label: 'Event'     },
+    { id: 'ceremony',  label: 'Ceremony'  },
     { id: 'reception', label: 'Reception' },
     { id: 'story',     label: 'Our Story' },
-    { id: 'travel',    label: 'Travel' },
-    { id: 'registry',  label: 'Registry' },
+    { id: 'travel',    label: 'Travel'    },
+    { id: 'registry',  label: 'Registry'  },
   ];
+
+  // Avoid flash — wait until session check completes
+  if (!checked) return null;
+
+  // Show password gate
+  if (!authed) return <PasswordGate onAuth={() => setAuthed(true)} />;
 
   if (loading) return (
     <div style={{ minHeight: '100vh', background: dark, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -147,14 +294,14 @@ export default function WeddingAdminPage() {
     </div>
   );
 
-  const couple   = (data as Record<string, Record<string, string>>)?.couple   || {};
-  const wedding  = (data as Record<string, Record<string, string>>)?.wedding  || {};
-  const ceremony = (data as Record<string, Record<string, string>>)?.ceremony || {};
-  const reception= (data as Record<string, Record<string, string>>)?.reception|| {};
-  const travel   = (data as Record<string, Record<string, unknown>>)?.travel  || {};
-  const story    = ((data as Record<string, unknown[]>)?.story    || []) as Record<string, string>[];
-  const registry = ((data as Record<string, unknown[]>)?.registry || []) as Record<string, string>[];
-  const hotels   = ((travel.hotels as unknown[]) || []) as Record<string, string>[];
+  const couple    = (data as Record<string, Record<string, string>>)?.couple    || {};
+  const wedding   = (data as Record<string, Record<string, string>>)?.wedding   || {};
+  const ceremony  = (data as Record<string, Record<string, string>>)?.ceremony  || {};
+  const reception = (data as Record<string, Record<string, string>>)?.reception || {};
+  const travel    = (data as Record<string, Record<string, unknown>>)?.travel   || {};
+  const story     = ((data as Record<string, unknown[]>)?.story    || []) as Record<string, string>[];
+  const registry  = ((data as Record<string, unknown[]>)?.registry || []) as Record<string, string>[];
+  const hotels    = ((travel.hotels as unknown[]) || []) as Record<string, string>[];
 
   return (
     <div style={{ minHeight: '100vh', background: dark, fontFamily: "'Helvetica Neue', sans-serif", color: 'rgba(255,255,255,0.75)' }}>
@@ -163,33 +310,30 @@ export default function WeddingAdminPage() {
       {toast && (
         <div style={{
           position: 'fixed', top: 24, right: 24, zIndex: 9999,
-          background: toast.ok ? 'rgba(60,140,60,0.15)' : 'rgba(180,40,40,0.15)',
+          background: toast.ok ? 'rgba(30,100,30,0.15)' : 'rgba(180,40,40,0.15)',
           border: `1px solid ${toast.ok ? 'rgba(100,200,100,0.4)' : 'rgba(220,80,80,0.4)'}`,
           borderRadius: 4, padding: '12px 24px',
           color: toast.ok ? '#8ddb8d' : '#e08080', fontSize: 13, letterSpacing: '0.05em',
-          backdropFilter: 'blur(12px)',
+          backdropFilter: 'blur(12px)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
         }}>
           {toast.msg}
         </div>
       )}
 
       {/* Header */}
-      <div style={{ background: card, borderBottom: `1px solid ${border}`, padding: '24px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+      <div style={{ background: card, borderBottom: `1px solid ${border}`, padding: '20px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
         <div>
-          <a href="/wedding/sarah-james" style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: `${gold}66`, textDecoration: 'none', display: 'block', marginBottom: 8 }}>
-            ← Back to wedding
+          <a href="/wedding/sarah-james" style={{ fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase', color: `${gold}55`, textDecoration: 'none', display: 'block', marginBottom: 6 }}>
+            ← View wedding site
           </a>
-          <h1 style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 28, color: '#fff', margin: 0 }}>
+          <h1 style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 24, color: '#fff', margin: 0, lineHeight: 1 }}>
             Wedding Admin
           </h1>
-          <p style={{ fontSize: 11, color: `${gold}88`, margin: '4px 0 0', letterSpacing: '0.1em' }}>
-            Changes save to Firestore and go live instantly — no deploy needed
-          </p>
         </div>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
           {!data && (
             <button onClick={seed} disabled={seeding} style={{
-              padding: '10px 20px', borderRadius: 999, border: `1px solid ${border}`,
+              padding: '9px 20px', borderRadius: 999, border: `1px solid ${border}`,
               background: 'rgba(201,169,110,0.08)', color: gold, fontSize: 10,
               letterSpacing: '0.2em', textTransform: 'uppercase', cursor: 'pointer',
             }}>
@@ -197,13 +341,21 @@ export default function WeddingAdminPage() {
             </button>
           )}
           <button onClick={save} disabled={saving || !data} style={{
-            padding: '10px 28px', borderRadius: 999, border: 'none',
+            padding: '9px 28px', borderRadius: 999, border: 'none',
             background: `linear-gradient(135deg, #b8922e, #e8c87a, #b8922e)`,
             color: '#1a0e0e', fontSize: 10, letterSpacing: '0.25em',
             textTransform: 'uppercase', fontWeight: 700, cursor: 'pointer',
             opacity: saving || !data ? 0.5 : 1,
           }}>
             {saving ? 'Saving…' : 'Save Changes'}
+          </button>
+          <button onClick={logout} style={{
+            padding: '9px 16px', borderRadius: 999,
+            border: `1px solid rgba(255,255,255,0.08)`, background: 'none',
+            color: 'rgba(255,255,255,0.25)', fontSize: 9,
+            letterSpacing: '0.2em', textTransform: 'uppercase', cursor: 'pointer',
+          }}>
+            Lock
           </button>
         </div>
       </div>
@@ -219,20 +371,20 @@ export default function WeddingAdminPage() {
             color: '#1a0e0e', border: 'none', fontSize: 11,
             letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, cursor: 'pointer',
           }}>
-            {seeding ? 'Seeding…' : '⬆ Seed from JSON file to get started'}
+            {seeding ? 'Seeding…' : '⬆ Seed from JSON to get started'}
           </button>
         </div>
       ) : (
-        <div style={{ display: 'flex', minHeight: 'calc(100vh - 100px)' }}>
+        <div style={{ display: 'flex', minHeight: 'calc(100vh - 88px)' }}>
 
-          {/* Sidebar tabs */}
-          <nav style={{ width: 180, background: card, borderRight: `1px solid ${border}`, padding: '24px 0', flexShrink: 0 }}>
+          {/* Sidebar */}
+          <nav style={{ width: 175, background: card, borderRight: `1px solid ${border}`, padding: '20px 0', flexShrink: 0 }}>
             {tabs.map(t => (
               <button key={t.id} onClick={() => setTab(t.id)} style={{
                 display: 'block', width: '100%', textAlign: 'left',
                 padding: '12px 24px', background: 'none', border: 'none', cursor: 'pointer',
-                fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase',
-                color: tab === t.id ? gold : 'rgba(255,255,255,0.35)',
+                fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
+                color: tab === t.id ? gold : 'rgba(255,255,255,0.3)',
                 borderLeft: `2px solid ${tab === t.id ? gold : 'transparent'}`,
                 transition: 'all 200ms ease',
               }}>
@@ -241,36 +393,33 @@ export default function WeddingAdminPage() {
             ))}
           </nav>
 
-          {/* Content */}
-          <div style={{ flex: 1, padding: '36px 48px', maxWidth: 760 }}>
+          {/* Content area */}
+          <div style={{ flex: 1, padding: '36px 48px', maxWidth: 760, overflowY: 'auto' }}>
 
-            {/* ── COUPLE & BASICS ─────────────────────────────── */}
             {tab === 'basics' && (<>
               <SectionTitle>Couple</SectionTitle>
               <Field label="Partner 1 Name" value={couple.name1 || ''} onChange={v => patch(['couple','name1'], v)} />
               <Field label="Partner 2 Name" value={couple.name2 || ''} onChange={v => patch(['couple','name2'], v)} />
               <Field label="Monogram (e.g. S & J)" value={couple.monogram || ''} onChange={v => patch(['couple','monogram'], v)} />
-              <SectionTitle>Hero Image</SectionTitle>
-              <Field label="Hero Image URL" value={(data as Record<string, string>).heroImage || ''} onChange={v => patch(['heroImage'], v)} placeholder="https://images.unsplash.com/..." />
+              <SectionTitle>Hero Background Photo</SectionTitle>
+              <Field label="Image URL" value={(data as Record<string, string>).heroImage || ''} onChange={v => patch(['heroImage'], v)} placeholder="https://images.unsplash.com/..." />
               {(data as Record<string, string>).heroImage && (
                 <img src={(data as Record<string, string>).heroImage} alt="Hero preview"
-                  style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 4, marginTop: 8, border: `1px solid ${border}` }} />
+                  style={{ width: '100%', maxHeight: 220, objectFit: 'cover', borderRadius: 4, marginTop: 8, border: `1px solid ${border}` }} />
               )}
             </>)}
 
-            {/* ── EVENT ───────────────────────────────────────── */}
             {tab === 'event' && (<>
               <SectionTitle>Event Details</SectionTitle>
-              <Field label="Date (ISO, e.g. 2026-09-20T17:30:00)" value={wedding.date || ''} onChange={v => patch(['wedding','date'], v)} />
-              <Field label="Date Display (formal, shown in hero)" value={wedding.dateDisplay || ''} onChange={v => patch(['wedding','dateDisplay'], v)} placeholder="Saturday, the Twentieth of September..." />
-              <Field label="Date Short (shown in footer)" value={wedding.dateShort || ''} onChange={v => patch(['wedding','dateShort'], v)} placeholder="September 20, 2026" />
+              <Field label="Date (e.g. 2026-09-20T17:30:00)" value={wedding.date || ''} onChange={v => patch(['wedding','date'], v)} />
+              <Field label="Date Display — shown in hero" value={wedding.dateDisplay || ''} onChange={v => patch(['wedding','dateDisplay'], v)} placeholder="Saturday, the Twentieth of September..." />
+              <Field label="Date Short — shown in footer" value={wedding.dateShort || ''} onChange={v => patch(['wedding','dateShort'], v)} placeholder="September 20, 2026" />
               <Field label="Day of Week" value={wedding.dayOfWeek || ''} onChange={v => patch(['wedding','dayOfWeek'], v)} placeholder="SATURDAY" />
               <Field label="Ceremony Time" value={wedding.time || ''} onChange={v => patch(['wedding','time'], v)} placeholder="5:30 PM" />
               <Field label="RSVP Deadline" value={wedding.rsvpDeadline || ''} onChange={v => patch(['wedding','rsvpDeadline'], v)} placeholder="August 1st, 2026" />
               <Field label="Dress Code" value={wedding.dressCode || ''} onChange={v => patch(['wedding','dressCode'], v)} placeholder="Black Tie Optional" />
             </>)}
 
-            {/* ── CEREMONY ────────────────────────────────────── */}
             {tab === 'ceremony' && (<>
               <SectionTitle>Ceremony Venue</SectionTitle>
               <Field label="Venue Name" value={ceremony.venue || ''} onChange={v => patch(['ceremony','venue'], v)} />
@@ -280,18 +429,16 @@ export default function WeddingAdminPage() {
               <Field label="Google Maps URL" value={ceremony.mapsUrl || ''} onChange={v => patch(['ceremony','mapsUrl'], v)} />
             </>)}
 
-            {/* ── RECEPTION ───────────────────────────────────── */}
             {tab === 'reception' && (<>
               <SectionTitle>Reception Venue</SectionTitle>
               <Field label="Venue Name" value={reception.venue || ''} onChange={v => patch(['reception','venue'], v)} />
               <Field label="Sub-venue / Hall" value={reception.subvenue || ''} onChange={v => patch(['reception','subvenue'], v)} />
               <Field label="City / Region" value={reception.city || ''} onChange={v => patch(['reception','city'], v)} />
               <Field label="Start Time" value={reception.time || ''} onChange={v => patch(['reception','time'], v)} placeholder="Immediately Following" />
-              <Field label="Details / Description" value={reception.details || ''} onChange={v => patch(['reception','details'], v)} placeholder="Dinner & Dancing Until Midnight" />
+              <Field label="Details" value={reception.details || ''} onChange={v => patch(['reception','details'], v)} placeholder="Dinner & Dancing Until Midnight" />
               <Field label="Google Maps URL" value={reception.mapsUrl || ''} onChange={v => patch(['reception','mapsUrl'], v)} />
             </>)}
 
-            {/* ── OUR STORY ───────────────────────────────────── */}
             {tab === 'story' && (<>
               <SectionTitle>Our Story Milestones</SectionTitle>
               {story.map((m, i) => (
@@ -299,13 +446,12 @@ export default function WeddingAdminPage() {
                   <p style={{ fontSize: 10, color: `${gold}88`, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 12 }}>Milestone {i + 1}</p>
                   <Field label="Date" value={m.date || ''} onChange={v => patchArr('story', i, 'date', v)} placeholder="May 2019" />
                   <Field label="Title" value={m.title || ''} onChange={v => patchArr('story', i, 'title', v)} />
-                  <Field label="Story" value={m.body || ''} onChange={v => patchArr('story', i, 'body', v)} textarea placeholder="Tell the story..." />
+                  <Field label="Story text" value={m.body || ''} onChange={v => patchArr('story', i, 'body', v)} textarea />
                   <Field label="Image URL" value={m.image || ''} onChange={v => patchArr('story', i, 'image', v)} />
                 </div>
               ))}
             </>)}
 
-            {/* ── TRAVEL ──────────────────────────────────────── */}
             {tab === 'travel' && (<>
               <SectionTitle>Getting There</SectionTitle>
               <Field label="Directions Note" value={(travel.directionsNote as string) || ''} onChange={v => patch(['travel','directionsNote'], v)} textarea />
@@ -316,26 +462,13 @@ export default function WeddingAdminPage() {
               {hotels.map((h, i) => (
                 <div key={i} style={{ background: 'rgba(255,255,255,0.02)', border: `1px solid ${border}`, borderRadius: 4, padding: '16px 20px 4px', marginBottom: 12 }}>
                   <p style={{ fontSize: 10, color: `${gold}88`, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 12 }}>Hotel {i + 1}</p>
-                  <Field label="Hotel Name" value={h.name || ''} onChange={v => {
-                    const arr = JSON.parse(JSON.stringify(hotels));
-                    arr[i].name = v;
-                    patch(['travel','hotels'], arr);
-                  }} />
-                  <Field label="Distance from Venue" value={h.distance || ''} onChange={v => {
-                    const arr = JSON.parse(JSON.stringify(hotels));
-                    arr[i].distance = v;
-                    patch(['travel','hotels'], arr);
-                  }} placeholder="0.3 km from venue" />
-                  <Field label="Booking URL" value={h.url || ''} onChange={v => {
-                    const arr = JSON.parse(JSON.stringify(hotels));
-                    arr[i].url = v;
-                    patch(['travel','hotels'], arr);
-                  }} />
+                  <Field label="Hotel Name" value={h.name || ''} onChange={v => { const a = JSON.parse(JSON.stringify(hotels)); a[i].name = v; patch(['travel','hotels'], a); }} />
+                  <Field label="Distance" value={h.distance || ''} onChange={v => { const a = JSON.parse(JSON.stringify(hotels)); a[i].distance = v; patch(['travel','hotels'], a); }} placeholder="0.3 km from venue" />
+                  <Field label="Booking URL" value={h.url || ''} onChange={v => { const a = JSON.parse(JSON.stringify(hotels)); a[i].url = v; patch(['travel','hotels'], a); }} />
                 </div>
               ))}
             </>)}
 
-            {/* ── REGISTRY ────────────────────────────────────── */}
             {tab === 'registry' && (<>
               <SectionTitle>Gift Registry</SectionTitle>
               {registry.map((r, i) => (
