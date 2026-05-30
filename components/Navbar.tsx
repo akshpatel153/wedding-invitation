@@ -31,12 +31,11 @@ export default function Navbar({ monogram, slug }: NavProps) {
   }, []);
 
   const navLinks = [
-    { label: 'Our Story', href: '#story',          id: 'story'    },
-    { label: 'Details',   href: '#details',        id: 'details'  },
-    { label: 'Gallery',   href: '#gallery',        id: 'gallery'  },
-    { label: 'Registry',  href: '#registry',       id: 'registry' },
-    { label: 'RSVP',      href: '#rsvp',           id: 'rsvp'     },
-    { label: 'Admin',     href: '/admin/wedding',  id: 'admin'    },
+    { label: 'Our Story', href: '#story',         id: 'story'    },
+    { label: 'Details',   href: '#details',       id: 'details'  },
+    { label: 'Gallery',   href: '#gallery',       id: 'gallery'  },
+    { label: 'Registry',  href: '#registry',      id: 'registry' },
+    { label: 'Admin',     href: '/admin/wedding', id: 'admin'    },
   ];
 
   const scrollTo = (href: string) => {
@@ -113,6 +112,25 @@ export default function Navbar({ monogram, slug }: NavProps) {
             );
           })}
 
+          {/* RSVP pill CTA */}
+          <button
+            onClick={() => scrollTo('#rsvp')}
+            className="nav-cta"
+            style={{
+              fontFamily: 'var(--font-jost), sans-serif',
+              fontWeight: 500, fontSize: 10,
+              letterSpacing: '0.2em', textTransform: 'uppercase',
+              color: 'rgba(201,169,110,0.9)',
+              background: 'transparent',
+              border: '1px solid rgba(201,169,110,0.4)',
+              borderRadius: 999,
+              padding: '9px 24px', cursor: 'pointer',
+              transition: 'all 250ms ease',
+              marginLeft: 4,
+            }}
+          >
+            RSVP
+          </button>
 
         </div>
 
