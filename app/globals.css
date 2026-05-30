@@ -59,9 +59,30 @@ body {
   color: var(--color-text-body);
   line-height: 1.6;
   overflow-x: hidden;
+  /* Prevent accidental text / image selection on click or drag */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-img { max-width: 100%; display: block; }
+/* Re-enable selection only where it makes sense */
+p, h1, h2, h3, h4, h5, h6, li, blockquote, td, th, caption {
+  user-select: text;
+  -webkit-user-select: text;
+}
+input, textarea, select, [contenteditable] {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Prevent image dragging */
+img {
+  max-width: 100%;
+  display: block;
+  -webkit-user-drag: none;
+  user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
 a  { text-decoration: none; color: inherit; }
 button { cursor: pointer; border: none; background: none; font-family: inherit; }
 ul { list-style: none; }

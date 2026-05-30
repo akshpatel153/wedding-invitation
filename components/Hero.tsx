@@ -316,7 +316,7 @@ export default function Hero({ name1, name2, dateDisplay, venueName, venueCity, 
         fontSize: 13, color: 'rgba(255,255,255,0.35)',
         letterSpacing: '0.1em',
       }}>
-        2025
+        2026
       </div>
     </section>
   );

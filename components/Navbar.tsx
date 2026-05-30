@@ -17,7 +17,7 @@ export default function Navbar({ monogram, slug }: NavProps) {
       setScrolled(window.scrollY > 60);
 
       // Highlight active nav section
-      const sections = ['story', 'details', 'gallery', 'rsvp'];
+      const sections = ['story', 'details', 'gallery', 'registry', 'rsvp'];
       for (const id of sections.reverse()) {
         const el = document.getElementById(id);
         if (el && window.scrollY >= el.offsetTop - 120) {
@@ -31,11 +31,11 @@ export default function Navbar({ monogram, slug }: NavProps) {
   }, []);
 
   const navLinks = [
-    { label: 'Our Story', href: '#story',   id: 'story'   },
-    { label: 'Details',   href: '#details', id: 'details' },
-    { label: 'Gallery',   href: '#gallery', id: 'gallery' },
-    { label: 'Registry',  href: '#rsvp',    id: 'rsvp'    },
-    { label: 'RSVP',      href: '#rsvp',    id: 'rsvp'    },
+    { label: 'Our Story', href: '#story',    id: 'story'    },
+    { label: 'Details',   href: '#details',  id: 'details'  },
+    { label: 'Gallery',   href: '#gallery',  id: 'gallery'  },
+    { label: 'Registry',  href: '#registry', id: 'registry' },
+    { label: 'RSVP',      href: '#rsvp',     id: 'rsvp'     },
   ];
 
   const scrollTo = (href: string) => {

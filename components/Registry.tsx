@@ -44,7 +44,7 @@ function RegistryIcon({ type }: { type: string }) {
 
 export default function Registry({ items }: RegistryProps) {
   return (
-    <section style={{
+    <section id="registry" style={{
       position: 'relative',
       overflow: 'hidden',
       background: 'linear-gradient(180deg, #1F1515 0%, #261616 50%, #1F1515 100%)',

@@ -40,7 +40,7 @@ function BedIcon() {
 
 export default function Travel({ directionsNote, address, mapsUrl, hotels, roomBlock }: TravelProps) {
   return (
-    <section style={{
+    <section id="travel" style={{
       position: 'relative',
       overflow: 'hidden',
       background: 'linear-gradient(180deg, #1A1010 0%, #221313 50%, #1A1010 100%)',
