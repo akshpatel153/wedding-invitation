@@ -64,11 +64,7 @@ body {
   -webkit-user-select: none;
 }
 
-/* Re-enable selection only where it makes sense */
-p, h1, h2, h3, h4, h5, h6, li, blockquote, td, th, caption {
-  user-select: text;
-  -webkit-user-select: text;
-}
+/* Re-enable selection only in form fields */
 input, textarea, select, [contenteditable] {
   user-select: text;
   -webkit-user-select: text;
