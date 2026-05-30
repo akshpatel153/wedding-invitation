@@ -1,8 +1,7 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import fs from 'fs';
-import path from 'path';
 
+import { getWeddingConfig } from '@/lib/firestore';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import InvitationCard from '@/components/InvitationCard';
@@ -16,46 +15,24 @@ import RSVPForm from '@/components/RSVPForm';
 import Footer from '@/components/Footer';
 import ScrollAnimator from '@/components/ScrollAnimator';
 
+// Always server-render fresh — data comes from Firestore or JSON
+export const dynamic = 'force-dynamic';
+
 interface CoupleData {
   slug: string;
   heroImage: string;
-  couple: {
-    name1: string;
-    name2: string;
-    monogram: string;
-    story: string;
-  };
+  couple: { name1: string; name2: string; monogram: string; story: string };
   wedding: {
-    date: string;
-    dateDisplay: string;
-    dateShort: string;
-    dayOfWeek: string;
-    time: string;
-    rsvpDeadline: string;
-    dressCode: string;
+    date: string; dateDisplay: string; dateShort: string;
+    dayOfWeek: string; time: string; rsvpDeadline: string; dressCode: string;
   };
-  ceremony: {
-    venue: string;
-    address: string;
-    city: string;
-    time: string;
-    mapsUrl: string;
-  };
-  reception: {
-    venue: string;
-    subvenue: string;
-    city: string;
-    time: string;
-    details: string;
-    mapsUrl: string;
-  };
+  ceremony: { venue: string; address: string; city: string; time: string; mapsUrl: string };
+  reception: { venue: string; subvenue: string; city: string; time: string; details: string; mapsUrl: string };
   schedule: Array<{ time: string; event: string; description: string }>;
   story: Array<{ date: string; title: string; body: string; image: string | null }>;
   gallery: Array<{ src: string | null; alt: string; ratio: string }>;
   travel: {
-    directionsNote: string;
-    address: string;
-    mapsUrl: string;
+    directionsNote: string; address: string; mapsUrl: string;
     hotels: Array<{ name: string; distance: string; url: string }>;
     roomBlock: string;
   };
@@ -64,8 +41,15 @@ interface CoupleData {
   meta: { description: string; ogTitle: string; ogDescription: string };
 }
 
-function getCoupleData(slug: string): CoupleData | null {
+async function getCoupleData(slug: string): Promise<CoupleData | null> {
+  // 1. Try Firestore first (live data edited via admin panel)
+  const fromFirestore = await getWeddingConfig(slug);
+  if (fromFirestore) return fromFirestore as CoupleData;
+
+  // 2. Fall back to local JSON (works on local dev before first Firestore seed)
   try {
+    const fs   = await import('fs');
+    const path = await import('path');
     const filePath = path.join(process.cwd(), 'data', 'couples', `${slug}.json`);
     const raw = fs.readFileSync(filePath, 'utf-8');
     return JSON.parse(raw) as CoupleData;
@@ -80,28 +64,13 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const data = getCoupleData(slug);
+  const data = await getCoupleData(slug);
   if (!data) return { title: 'Wedding' };
   return {
     title: `${data.couple.name1} & ${data.couple.name2} — ${data.wedding.dateShort}`,
     description: data.meta.description,
-    openGraph: {
-      title: data.meta.ogTitle,
-      description: data.meta.ogDescription,
-    },
+    openGraph: { title: data.meta.ogTitle, description: data.meta.ogDescription },
   };
-}
-
-export async function generateStaticParams() {
-  const dir = path.join(process.cwd(), 'data', 'couples');
-  try {
-    const files = fs.readdirSync(dir);
-    return files
-      .filter((f) => f.endsWith('.json'))
-      .map((f) => ({ slug: f.replace('.json', '') }));
-  } catch {
-    return [];
-  }
 }
 
 export default async function WeddingPage({
@@ -110,8 +79,7 @@ export default async function WeddingPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const data = getCoupleData(slug);
-
+  const data = await getCoupleData(slug);
   if (!data) notFound();
 
   return (
